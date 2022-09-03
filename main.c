@@ -1,59 +1,87 @@
 #include<stdbool.h>
 #include<string.h>
 #include<time.h>
+#include<math.h>
 
 #include "mergeSort.h"
-#include "selectionSort.h"
+#include "radixSort.h"
 
-void geraVetores(int n)
+void printVet(int *v)
 {
-    int i, vetor[n];
-    int *aux = (int *)malloc(n * sizeof(int));
-
-    for (i = 0; i <= n; i++)
+    for (int i = 0; i <= sizeof(v); i++)
     {
-        vetor[i] = (rand() % n);
-        printf("%d ", vetor[i]);
+        printf("%d ", v[i]);
     }
-    aux = vetor;
-    print(aux);
+}
+
+int* geraVetores(int intervalo)
+{   
+    int *vetor = (int *)malloc(19 * sizeof(int));
+    int i;
+    
+
+    for (i = 0; i <= sizeof(vetor); i++)
+    {
+        vetor[i] = (rand() % intervalo);
+    }
+    return vetor;
+}
+
+void copiaVetores(int *v1, int *v2, int *v3){
+    for (int i = 0; i <= sizeof(v1); i++)
+    {
+        v2[i] = v1[i];
+        v3[i] = v1[i];
+    }
+    
 }
 
 int main()
 {
-    int escolha;
-    double tempo;
-    int vetor[10]; 
-    geraVetores(10);
+    double tempor, tempom, tempos;
+    int n = 19;
+    int intervalo = 0;
+    clock_t startr, startm, starti, endr, endm, endi;
 
-    clock_t start, end;
+    printf("Digite a quantidade o intervalo das chaves: ");
+    scanf("%d", &intervalo);
+    int *vetorinicial = (int *)malloc(n * sizeof(int));
+    int *vetormerge = (int *)malloc(n * sizeof(int));
+    int *vetorselection = (int *)malloc(n * sizeof(int));
+    
+    vetorinicial = geraVetores(intervalo);
+    copiaVetores(vetorinicial, vetormerge, vetorselection);
+    
+    printf("CONTEUDO VETORINICIAL:");
+    printVet(vetorinicial);
+    printf("\nCONTEUDO VETORMERGE:");
+    printVet(vetormerge);
+    printf("\nCONTEUDO VETORSELECTION:");
+    printVet(vetorselection);
 
-    printf("Escolha qual método quer utilizar\n");
-    printf("Digite: 1 - MergeSort, 2 - RadixSort, 3 - SelectionSort\n");
-    scanf("%d", &escolha);
+//-------------------------------------------------------
+    printf("\n\n--Resultado RadixSort--");
+    int qtd_digitos = (int)(log10((double)intervalo)) + 1;
+    startr = clock();
+    radixSort(vetorinicial, n, 10, qtd_digitos);
+    endr = clock();
+    printf("\nCONTEUDO ORDENADO:");
+    printVet(vetorinicial);
+    tempor = (double)(endr - startr) / CLOCKS_PER_SEC;
+    printf("\n Tempo:%.4lf", tempor);
 
-    if (escolha != 1 && escolha != 2 && escolha != 3){
-        printf("Por favor, escolha uma opção válida:\n");
-        printf("1 para MergeSort\n");
-        printf("2 para RadixSort\n");
-        printf("3 para SelectionSort\n");
-        scanf("%d", &escolha);
-    }else if (escolha == 1){
-        start = clock();
-        mergeSort();
-        end = clock();
-    }else if(escolha == 2){
-        start = clock();
-        radixSort();
-        end = clock();
-    }else if(escolha == 3){
-        start = clock();
-        selectionSort();
-        end = clock();
-    }
+//-------------------------------------------------------
+    printf("\n\n--Resultado MergeSort--");
+    startm = clock();
+    mergeSort(vetormerge, n);
+    endm = clock();
+    printf("\nCONTEUDO ORDENADO:");
+    printVet(vetormerge);
+    tempom = (double)(endm - startm) / CLOCKS_PER_SEC;
+    printf("\n Tempo:%.4lf", tempom);
 
-    tempo = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("%.4lf\n", tempo);
+//-------------------------------------------------------
+    printf("\n\n--Resultado SelectionSort--");
         
     return 0;
 }
