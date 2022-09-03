@@ -1,60 +1,56 @@
-#include <stdio.h>
-int getMax(int vetor[], int n);
-void countingSort(int vetor[], int size, int place);
-void radixsort(int vetor[], int size);
+#include "radixSort.h"
 
 //Função pra pegar a maior chave do vetor
-int getMax(int vetor[], int n)
-{
+int getMax(int* vetor, int n) {
     int max = vetor[0];
-    for (int i = 1; i < n; i++)
-        if (vetor[i] > max)
+
+    for (int i = 1; i < n; i++) {
+        if (vetor[i] > max) {
             max = vetor[i];
+        }
+    }
+
     return max;
 }
 
-void countingSort(int vetor[], int size, int place)
-{
-    int output[size + 1];
-    int max = (vetor[0] / place) % 10;
+void countingSort(int* vetor, int length, int expo) {
+    int max = getMax(vetor, length);
+    int* countingArray = calloc(max + 1, sizeof(int));
+    int* sortedArray = calloc(length + 1, sizeof(int));
 
-    for (int i = 1; i < size; i++)
-    {
-        if (((vetor[i] / place) % 10) > max)
-            max = vetor[i];
-    }
-    int count[max + 1];
-
-    for (int i = 0; i < max; ++i)
-        count[i] = 0;
-
-    // Contagem de elementos
-    for (int i = 0; i < size; i++)
-        count[(vetor[i] / place) % 10]++;
-
-    for (int i = 1; i < 10; i++)
-        count[i] += count[i - 1];
-
-    // Colocando os elementos ordenados
-    for (int i = size - 1; i >= 0; i--)
-    {
-        output[count[(vetor[i] / place) % 10] - 1] = vetor[i];
-        count[(vetor[i] / place) % 10]--;
+    for (int i = 0; i < length; i++) {  // Custo 2 * (n + 1)
+        int idx = (vetor[i] / expo) % 10;
+        countingArray[idx] += 1;
     }
 
-    for (int i = 0; i < size; i++)
-        vetor[i] = output[i];
+    for (int i = 1; i <= max; i++) {  // Custo K
+        countingArray[i] += countingArray[i - 1];
+    }
+
+    for (int i = max - 1; i >= 0; i--) {  // Custo K
+        int idx = (vetor[i] / expo) % 10;
+        int pos = countingArray[idx];
+
+        sortedArray[pos - 1] = vetor[i];
+        countingArray[idx] -= 1;
+    }
+
+    // Copiando os elementos ordenados no vetor original
+    for (int i = 0; i < length; i++) {  // Custo 2 * (n + 1)
+        vetor[i] = sortedArray[i];
+    }
+
+    free(countingArray);
+    free(sortedArray);
 }
 
-void radixsort(int vetor[], int size)
-{
+void radixSort(int* vetor, int size) {
     int max = getMax(vetor, size);
 
-    //Usando countingsort pra ordenar os valores paseados na posição
-    for (int place = 1; max / place > 0; place *= 10)
+    for (int place = 1; (max / place) > 0; place *= 10) {  // Custo P
         countingSort(vetor, size, place);
+    }
 }
-
 // // Printando vetor
 // void printArray(int vetor[], int size)
 // {
