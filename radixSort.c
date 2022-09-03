@@ -1,41 +1,74 @@
-#include "radixSort.h"
+#include <stdio.h>
+int getMax(int vetor[], int n);
+void countingSort(int vetor[], int size, int place);
+void radixsort(int vetor[], int size);
 
-/*
-v = vetor a ser ordenado
-n = quantidade de chaves
-base = base dos números (seria base 10)
-num_digitos = digitos das chaves
-*/
-
-void radixSort(int *v, int n, int base, int num_digitos)
+//Função pra pegar a maior chave do vetor
+int getMax(int vetor[], int n)
 {
-    int i, j, w, count[base + 1], d, posicao;
-    int *aux = (int *)malloc(n * sizeof(int));
-    for (w = 1; w <= num_digitos; w++)
+    int max = vetor[0];
+    for (int i = 1; i < n; i++)
+        if (vetor[i] > max)
+            max = vetor[i];
+    return max;
+}
+
+void countingSort(int vetor[], int size, int place)
+{
+    int output[size + 1];
+    int max = (vetor[0] / place) % 10;
+
+    for (int i = 1; i < size; i++)
     {
-        for (j = 0; j < base; j++)
-            count[j] = 0;
-        for (i = 0; i < n; i++)
-        {
-            d = digito(v[i], w, base);
-            count[d + 1]++;
-        }
-        for (j = 1; j < base; j++)
-            count[j] += count[j - 1];
-        for (i = 0; i < n; i++)
-        {
-            d = digito(v[i], w, base);
-            posicao = count[d];
-            count[d] += 1;
-            aux[posicao] = v[i];
-        }
-        for (i = 0; i < n; i++)
-            v[i] = aux[i];
+        if (((vetor[i] / place) % 10) > max)
+            max = vetor[i];
     }
+    int count[max + 1];
+
+    for (int i = 0; i < max; ++i)
+        count[i] = 0;
+
+    // Contagem de elementos
+    for (int i = 0; i < size; i++)
+        count[(vetor[i] / place) % 10]++;
+
+    for (int i = 1; i < 10; i++)
+        count[i] += count[i - 1];
+
+    // Colocando os elementos ordenados
+    for (int i = size - 1; i >= 0; i--)
+    {
+        output[count[(vetor[i] / place) % 10] - 1] = vetor[i];
+        count[(vetor[i] / place) % 10]--;
+    }
+
+    for (int i = 0; i < size; i++)
+        vetor[i] = output[i];
 }
 
-int digito(int valor, int w, int base)
+void radixsort(int vetor[], int size)
 {
-    printf("\nDigito:%d", valor / (w*10) % base);
-    return (valor / (w*10)) % base;
+    int max = getMax(vetor, size);
+
+    //Usando countingsort pra ordenar os valores paseados na posição
+    for (int place = 1; max / place > 0; place *= 10)
+        countingSort(vetor, size, place);
 }
+
+// // Printando vetor
+// void printArray(int vetor[], int size)
+// {
+//     for (int i = 0; i < size; ++i)
+//     {
+//         printf("%d  ", vetor[i]);
+//     }
+//     printf("\n");
+// }
+
+// int main()
+// {
+//     int vetor[] = {121, 432, 564, 23, 1, 45, 788};
+//     int n = sizeof(vetor) / sizeof(vetor[0]);
+//     radixsort(vetor, n);
+//     printArray(vetor, n);
+// }
